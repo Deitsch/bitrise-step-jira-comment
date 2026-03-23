@@ -1,0 +1,67 @@
+title: Jira Comment
+summary: Post a configurable comment to a configurable Jira instance.
+description: |
+  Posts a comment to a Jira issue using Jira's REST API.
+
+  You can configure:
+  - Jira base URL (instance)
+  - Jira user and API token/password
+  - Issue key
+  - Comment text
+website: https://github.com/deitsch/bitrise-step-jira-comment
+source_code_url: https://github.com/deitsch/bitrise-step-jira-comment
+support_url: https://github.com/deitsch/bitrise-step-jira-comment/issues
+host_os_tags:
+  - osx-10.10
+  - ubuntu-16.04
+  
+type_tags:
+  - notification
+is_requires_admin_user: false
+is_always_run: true
+is_skippable: true
+
+toolkit:
+  bash:
+    entry_file: step.sh
+
+inputs:
+  - jira_base_url: ""
+    opts:
+      title: Jira Base URL
+      summary: Base URL of the Jira instance (for example, https://your-company.atlassian.net).
+      is_required: true
+  - jira_issue_key: ""
+    opts:
+      title: Jira Issue Key
+      summary: Issue key to comment on (for example, PROJ-123).
+      is_required: true
+  - jira_user: ""
+    opts:
+      title: Jira User
+      summary: Jira username or email for authentication.
+      is_required: true
+  - jira_api_token: ""
+    opts:
+      title: Jira API Token / Password
+      summary: Jira API token (Cloud) or password (Server/Data Center).
+      is_required: true
+      is_sensitive: true
+  - jira_comment: ""
+    opts:
+      title: Jira Comment
+      summary: Comment text that should be posted.
+      is_required: true
+  - jira_rest_path: /rest/api/2
+    opts:
+      title: Jira REST Path
+      summary: REST API base path appended to Jira base URL.
+      description: |
+        Default: /rest/api/2
+        Example alternatives: /rest/api/latest or /rest/api/3
+      is_required: true
+outputs:
+  - JIRA_COMMENT_ID: ""
+    opts:
+      title: Jira Comment ID
+      summary: The ID of the created Jira comment.
