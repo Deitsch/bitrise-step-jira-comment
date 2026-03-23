@@ -34,8 +34,8 @@ inputs:
   - jira_issue_key: ""
     opts:
       title: Jira Issue Key
-      summary: Issue key to comment on (for example, PROJ-123).
-      is_required: true
+      summary: "Issue key to comment on. Optional if commit subject starts with ISSUEKEY-123 (with or without ':')."
+      is_required: false
   - jira_user: ""
     opts:
       title: Jira User

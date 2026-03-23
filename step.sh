@@ -38,11 +38,42 @@ export_output() {
   fi
 }
 
+resolve_issue_key() {
+  if [ -n "${jira_issue_key:-}" ]; then
+    printf '%s' "$jira_issue_key"
+    return
+  fi
+
+  local commit_subject="${BITRISE_GIT_MESSAGE:-${GIT_CLONE_COMMIT_MESSAGE_SUBJECT:-}}"
+
+  if [ -z "$commit_subject" ] && command -v git >/dev/null 2>&1; then
+    commit_subject="$(git log -1 --pretty=%s 2>/dev/null || true)"
+  fi
+
+  if [ -z "$commit_subject" ]; then
+    log_error "Missing issue key. Set jira_issue_key, BITRISE_GIT_MESSAGE, or GIT_CLONE_COMMIT_MESSAGE_SUBJECT."
+    exit 1
+  fi
+
+  local derived_key
+  derived_key="$(printf '%s' "$commit_subject" | sed -n 's/^[[:space:]]*\([A-Z][A-Z0-9]*-[0-9][0-9]*\)\([[:space:]]*:[[:space:]]*\|[[:space:]].*\|[[:space:]]*$\|$\)/\1/p' | head -n 1)"
+
+  if [ -z "$derived_key" ]; then
+    log_error "Could not derive issue key from commit subject: $commit_subject"
+    log_error "Expected start format: ISSUEKEY-123: commit message or ISSUEKEY-123 commit message"
+    exit 1
+  fi
+
+  log_info "Derived Jira issue key from commit subject: $derived_key"
+  printf '%s' "$derived_key"
+}
+
 require_env jira_base_url
-require_env jira_issue_key
 require_env jira_api_token
 require_env jira_comment
 require_env jira_rest_path
+
+jira_issue_key="$(resolve_issue_key)"
 
 base_url="${jira_base_url%/}"
 rest_path="/${jira_rest_path#/}"
