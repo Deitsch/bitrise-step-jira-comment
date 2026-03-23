@@ -40,7 +40,6 @@ export_output() {
 
 require_env jira_base_url
 require_env jira_issue_key
-require_env jira_user
 require_env jira_api_token
 require_env jira_comment
 require_env jira_rest_path
@@ -60,7 +59,7 @@ curl_args=(
   --location
   --request POST
   --url "$comment_endpoint"
-  --user "$jira_user:$jira_api_token"
+  --header "Authorization: Bearer $jira_api_token"
   --header 'Accept: application/json'
   --header 'Content-Type: application/json'
   --data "$payload"

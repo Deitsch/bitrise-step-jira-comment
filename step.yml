@@ -5,7 +5,7 @@ description: |
 
   You can configure:
   - Jira base URL (instance)
-  - Jira user and API token/password
+  - Jira Bearer token
   - Issue key
   - Comment text
 website: https://github.com/deitsch/bitrise-step-jira-comment
@@ -39,12 +39,12 @@ inputs:
   - jira_user: ""
     opts:
       title: Jira User
-      summary: Jira username or email for authentication.
-      is_required: true
+      summary: Deprecated. Not used when authenticating with Bearer token.
+      is_required: false
   - jira_api_token: ""
     opts:
-      title: Jira API Token / Password
-      summary: Jira API token (Cloud) or password (Server/Data Center).
+      title: Jira Bearer Token
+      summary: Bearer token used in the Authorization header.
       is_required: true
       is_sensitive: true
   - jira_comment: ""
