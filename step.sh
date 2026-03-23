@@ -55,8 +55,11 @@ resolve_issue_key() {
     exit 1
   fi
 
-  local derived_key
-  derived_key="$(printf '%s' "$commit_subject" | sed -n 's/^[[:space:]]*\([A-Z][A-Z0-9]*-[0-9][0-9]*\)\([[:space:]]*:[[:space:]]*\|[[:space:]].*\|[[:space:]]*$\|$\)/\1/p' | head -n 1)"
+  local derived_key=""
+  # Use bash regex here for portability (GNU/BSD sed differ in alternation support).
+  if [[ "$commit_subject" =~ ^[[:space:]]*([A-Z][A-Z0-9]*-[0-9]+)([[:space:]]*:[[:space:]]*.*|[[:space:]]+.*)?$ ]]; then
+    derived_key="${BASH_REMATCH[1]}"
+  fi
 
   if [ -z "$derived_key" ]; then
     log_error "Could not derive issue key from commit subject: $commit_subject"
