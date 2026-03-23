@@ -19,12 +19,13 @@ require_env() {
 }
 
 json_escape() {
-  printf '%s' "$1" \
-    | sed -e 's/\\/\\\\/g' \
-          -e 's/"/\\"/g' \
-          -e ':a;N;$!ba;s/\n/\\n/g' \
-          -e 's/\r/\\r/g' \
-          -e 's/\t/\\t/g'
+  local value="$1"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//$'\n'/\\n}"
+  value="${value//$'\r'/\\r}"
+  value="${value//$'\t'/\\t}"
+  printf '%s' "$value"
 }
 
 export_output() {
@@ -52,7 +53,7 @@ resolve_issue_key() {
 
   if [ -z "$commit_subject" ]; then
     log_error "Missing issue key. Set jira_issue_key, BITRISE_GIT_MESSAGE, or GIT_CLONE_COMMIT_MESSAGE_SUBJECT."
-    exit 1
+    return 1
   fi
 
   local derived_key=""
@@ -64,10 +65,10 @@ resolve_issue_key() {
   if [ -z "$derived_key" ]; then
     log_error "Could not derive issue key from commit subject: $commit_subject"
     log_error "Expected start format: ISSUEKEY-123: commit message or ISSUEKEY-123 commit message"
-    exit 1
+    return 1
   fi
 
-  log_info "Derived Jira issue key from commit subject: $derived_key"
+  log_info "Derived Jira issue key from commit subject: $derived_key" >&2
   printf '%s' "$derived_key"
 }
 
@@ -76,7 +77,9 @@ require_env jira_api_token
 require_env jira_comment
 require_env jira_rest_path
 
-jira_issue_key="$(resolve_issue_key)"
+if ! jira_issue_key="$(resolve_issue_key)"; then
+  exit 1
+fi
 
 base_url="${jira_base_url%/}"
 rest_path="/${jira_rest_path#/}"
